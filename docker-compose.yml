@@ -1,0 +1,83 @@
+version: "3.9"
+
+services:
+  # Redis service
+  redis:
+    container_name: redis_container
+    image: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: ["redis-server"]
+    deploy:
+      resources:
+        limits:
+          memory: 312M
+        reservations:
+          memory: 256M
+    networks:
+      - tcnet
+
+  metabase:
+    image: metabase/metabase:v0.55.x
+    container_name: metabase_container
+    restart: unless-stopped
+    ports:
+      - "1221:3000"
+    environment:
+      - MB_DB_TYPE=postgres
+      - MB_DB_DBNAME=db_name
+      - MB_DB_PORT=5959
+      - MB_DB_USER=postgres
+      - MB_DB_PASS=password
+      - MB_DB_HOST=localhost
+    networks:
+      - tcnet
+
+  mongo:
+    container_name: mongo_container
+    image: mongo:6.0
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - mongo_data:/data/db
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+    networks:
+      - tcnet
+
+  postgres:
+    container_name: postgres_container
+    image: postgres:15
+    restart: always
+    environment:
+      - POSTGRES_DB=metabase
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5959:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+    networks:
+      - tcnet
+
+volumes:
+  mongo_data:
+
+networks:
+  tcnet:
+    driver: bridge
