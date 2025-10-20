@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  # Redis service
+  redis:
+    container_name: redis_container
+    image: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: ["redis-server"]
+    deploy:
+      resources:
+        limits:
+          memory: 312M
+        reservations:
+          memory: 256M
+    networks:
+      - tcnet
+
+networks:
+  tcnet:
+    driver: bridge
