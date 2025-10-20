@@ -1,48 +1,41 @@
-# BOILERPLATE CRUD AUTOMATIC CLI Generator
+# 🚀 BOILERPLATE CRUD AUTOMATIC CLI Generator & Metabase on Docker
 
-🚀 Sebuah CLI tool sederhana untuk membuat **CRUD Express.js** secara otomatis hanya dengan satu perintah di terminal.  
-Cocok untuk prototyping, boilerplate project, atau belajar membangun generator di Node.js.
-
----
-
-## ✨ Fitur
-- Generate file **CRUD** berbasis Express.js dalam 1 file.
-- Mendukung **field schema** (string, number, boolean).
-- Auto-generate **router CRUD**:
-  - `GET /` → list semua data
-  - `GET /:id` → detail data
-  - `POST /` → buat data baru
-  - `PUT /:id` → update data
-  - `DELETE /:id` → hapus data
-- Auto-update `routes.js` supaya CRUD langsung terdaftar.
-- Tidak pakai DB, data disimpan in-memory (bisa diadaptasi ke DB nyata).
+This repository contains **two main tools**:
+1. **CRUD Automatic CLI Generator** – A Node.js CLI tool to generate Express.js CRUD APIs instantly.
+2. **Metabase on Docker** – A Docker Compose setup to run Metabase with PostgreSQL, Redis, and MongoDB.
 
 ---
 
-## 📦 Instalasi
-Clone repo dan install dependency:
+# 📌 Part 1: CRUD Automatic CLI Generator
+
+A simple **Node.js CLI tool** to automatically generate **Express.js CRUD APIs** with just one terminal command.  
+This is useful for **prototyping**, **boilerplate projects**, or learning how to build code generators in Node.js.
+
+---
+
+## ✨ Features
+- ⚡ Generate **CRUD file** (Express.js Router) instantly in a single file.
+- 📑 Supports **field schema types** (`string`, `number`, `boolean`).
+- 🔄 Auto-generate standard CRUD endpoints:
+  - `GET /` → List all data
+  - `GET /:id` → Get single data by ID
+  - `POST /` → Create new data
+  - `PUT /:id` → Update data
+  - `DELETE /:id` → Delete data
+- 🛠 Automatically updates `routes.js` so the generated CRUD is registered instantly.
+- 🗃 In-memory data store (easily adaptable to real databases).
+- 🔌 Support for adding **middleware** (auth, logger, etc.).
+
+**Command CRUD**
+  - crud-gen api/user id:number name:string email:string
+
+---
+
+## 📦 Installation
+
+Clone the repository and install dependencies:
+
 ```bash
 git clone https://github.com/<username>/<repo>.git
 cd <repo>
 npm install
-npm link ----> optional
-
----
-
-** COMMAND CRUD API **
-crud-gen api/user id:number name:string email:string
-
-# 🚀 Metabase on Docker
-
-Metabase adalah platform **Business Intelligence (BI)** open-source yang mudah digunakan untuk membuat dashboard, report, dan eksplorasi data.  
-Project ini menyediakan konfigurasi **Docker Compose** untuk menjalankan **Metabase + PostgreSQL + Redis + MongoDB** secara cepat.
-
----
-
-## 📦 Prasyarat
-Pastikan sudah menginstal:
-- [Docker](https://docs.docker.com/get-docker/)
-- [Docker Compose](https://docs.docker.com/compose/)
-
-** COMMAND DOCKER **
-docker compose up -d --build
