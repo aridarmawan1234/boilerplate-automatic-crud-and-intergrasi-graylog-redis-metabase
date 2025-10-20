@@ -34,25 +34,83 @@ services:
     networks:
       - tcnet
 
-  mongo:
-    container_name: mongo_container
-    image: mongo:6.0
-    restart: always
-    ports:
-      - "27017:27017"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=password
-    volumes:
-      - mongo_data:/data/db
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-        reservations:
-          memory: 256M
+  mongodb:
+    image: "mongo:7.0"
+    restart: "on-failure"
     networks:
-      - tcnet
+      - graylog
+    volumes:
+      - "mongodb_data:/data/db"
+      - "mongodb_config:/data/configdb"
+  datanode:
+    image: "${DATANODE_IMAGE:-graylog/graylog-datanode:6.3}"
+    hostname: "datanode"
+    environment:
+      GRAYLOG_DATANODE_NODE_ID_FILE: "/var/lib/graylog-datanode/node-id"
+      GRAYLOG_DATANODE_PASSWORD_SECRET: "SomeRandomLongSecret"
+      GRAYLOG_DATANODE_MONGODB_URI: "mongodb://mongodb:27017/graylog"
+    ulimits:
+      memlock:
+        hard: -1
+        soft: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    ports:
+      - "8999:8999/tcp"
+      - "9200:9200/tcp"
+      - "9300:9300/tcp"
+    networks:
+      - graylog
+    volumes:
+      - "graylog-datanode:/var/lib/graylog-datanode"
+    restart: "on-failure"
+
+  graylog:
+    hostname: "server"
+    image: "${GRAYLOG_IMAGE:-graylog/graylog:6.3}"
+    depends_on:
+      mongodb:
+        condition: "service_started"
+      datanode:
+        condition: "service_started"
+    entrypoint: "/usr/bin/tini --  /docker-entrypoint.sh"
+    environment:
+      GRAYLOG_NODE_ID_FILE: "/usr/share/graylog/data/data/node-id"
+      # GRAYLOG_DATANODE_PASSWORD_SECRET and GRAYLOG_PASSWORD_SECRET MUST be the same value
+      GRAYLOG_PASSWORD_SECRET: "SomeRandomLongSecret"
+      GRAYLOG_ROOT_PASSWORD_SHA2: "password_sh2"
+      GRAYLOG_HTTP_BIND_ADDRESS: "0.0.0.0:9000"
+      GRAYLOG_HTTP_EXTERNAL_URI: "http://localhost:9000/"
+      GRAYLOG_MONGODB_URI: "mongodb://mongodb:27017/graylog"
+      GRAYLOG_DATANODE_URI: "http://datanode:8999"
+      GRAYLOG_TRANSPORT_EMAIL_ENABLED: true
+      GRAYLOG_TRANSPORT_EMAIL_HOSTNAME: "smtp.gmail.com"
+      GRAYLOG_TRANSPORT_EMAIL_PORT: 587
+      GRAYLOG_TRANSPORT_EMAIL_USE_AUTH: true
+      GRAYLOG_TRANSPORT_EMAIL_AUTH_USERNAME: "email"
+      GRAYLOG_TRANSPORT_EMAIL_AUTH_PASSWORD: "password_graylog"
+      GRAYLOG_TRANSPORT_EMAIL_FROM_EMAIL: "email"
+      GRAYLOG_TRANSPORT_EMAIL_SUBJECT_PREFIX: "graylog"
+      GRAYLOG_TRANSPORT_EMAIL_USE_TLS: true
+      GRAYLOG_TRANSPORT_EMAIL_USE_SSL: false
+      GRAYLOG_ROOT_TIMEZONE: "Asia/Jakarta"
+    ports:
+    - "5044:5044/tcp"   # Beats
+    - "5140:5140/udp"   # Syslog
+    - "5140:5140/tcp"   # Syslog
+    - "5555:5555/tcp"   # RAW TCP
+    - "5555:5555/udp"   # RAW UDP
+    - "9000:9000/tcp"   # Server API
+    - "12201:12201/tcp" # GELF TCP
+    - "12201:12201/udp"
+    - "13301:13301/tcp"
+    - "13302:13302/tcp"
+    networks:
+      - graylog
+    volumes:
+      - "graylog_data:/usr/share/graylog/data/data"
+    restart: "on-failure"
 
   postgres:
     container_name: postgres_container
@@ -77,6 +135,9 @@ services:
 
 volumes:
   mongo_data:
+  mongodb_config:
+  graylog-datanode:
+  graylog_data:
 
 networks:
   tcnet:
