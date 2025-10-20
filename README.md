@@ -31,3 +31,18 @@ npm link ----> optional
 
 ** COMMAND CRUD API **
 crud-gen api/user id:number name:string email:string
+
+# 🚀 Metabase on Docker
+
+Metabase adalah platform **Business Intelligence (BI)** open-source yang mudah digunakan untuk membuat dashboard, report, dan eksplorasi data.  
+Project ini menyediakan konfigurasi **Docker Compose** untuk menjalankan **Metabase + PostgreSQL + Redis + MongoDB** secara cepat.
+
+---
+
+## 📦 Prasyarat
+Pastikan sudah menginstal:
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/)
+
+** COMMAND DOCKER **
+docker compose up -d --build
